@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ETHER TRANSACTION DAPP</title>
+    <style>
+        body {
+            background-color: rgb(173, 156, 189);
+            font-family: 'Lucida Sans';
+            font-size: 33px;
+            display: flex;
+            flex-direction: row;
+        }
+        button {
+            background-color: aquamarine;
+            font-size: 33px;
+            padding: 5px;
+            font-family: 'Lucida Sans';
+            font-weight: 1000;
+        }
+        input {
+            width: 25vw;
+            height: 30px;
+            font-size: 25px;
+            font-family: tahoma;
+            outline: none;
+        }
+        #readArea {
+            flex-basis: 50%;
+        }
+        #writeArea {
+            flex-basis: 50%;
+        }
+        button:hover {
+            background-color: yellow;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="readArea">
+        <button onclick="connectMetamask()">CONNECT TO METAMASK</button>
+        <p id="userArea">Status: Not connected to Metamask</p>
+
+        <button onclick="connectContract()">CONNECT TO CONTRACT</button>
+        <p id="contractArea">Status: Not connected to Contract</p>
+
+        <button onclick="getContractAccount()"> GET CONTRACT ACCOUNT </button>
+        <p id="contractAccount">Contract Account: Not Connected to Contract</p>
+
+        <button onclick="getBalanceApple()">GET BALANCE OF THE CONTRACT</button>
+        <p id="balanceArea">Balance: Not Connected to Contract</p>
+        
+    </div>
+
+    <div id="writeArea">
+        <button onclick="depositContract()">Send ether to the Contract</button><br>
+        <input type="number" id="depositInput" placeholder="Enter Amount"><br><br>
+
+        <button onclick="withdraw()">Withdraw ether from contract to any address</button><br>
+        <input type="text" id="addressInput" placeholder="Enter Address"><br>
+        <input type="number" id="amountInput" placeholder="Enter Amount"><br><br>
+
+        <button id="transfer-btn" onclick="transfer()">Withdraw ether from Metamask to any Address</button><br>
+        <p></p>
+        <input type="text" id="from-address" placeholder="From Address:"> <br>
+        <input type="text" id="to-address" placeholder="To Address"> <br>
+        <input type="number" id="money" placeholder="Enter the amount in Ether:">
+    </div>
+
+    <script>
+        
+        // var user = document.getElementById("readArea").children[0];
+        // user.addEventListener("click", () => {
+        //     console.log("I am clicked!");
+        // })
+
+        let account;
+        let money;
+        const connectMetamask = async () => {
+            if(window.ethereum !== "undefined") {
+                const accounts = await ethereum.request({method: "eth_requestAccounts"});
+                account = accounts[0];
+                document.getElementById("userArea").innerHTML = `User Account: ${account}`
+            }
+        }
+
+        const connectContract = async () => {
+            const ABI = [
+                    {
+                        "inputs": [],
+                        "name": "deposit",
+                        "outputs": [],
+                        "stateMutability": "payable",
+                        "type": "function"
+                    },
+                    {
+                        "inputs": [
+                            {
+                                "internalType": "address payable",
+                                "name": "_to",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "_amount",
+                                "type": "uint256"
+                            }
+                        ],
+                        "name": "transfer",
+                        "outputs": [],
+                        "stateMutability": "nonpayable",
+                        "type": "function"
+                    },
+                    {
+                        "inputs": [
+                            {
+                                "internalType": "address payable",
+                                "name": "_to",
+                                "type": "address"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "_amount",
+                                "type": "uint256"
+                            }
+                        ],
+                        "name": "withdraw",
+                        "outputs": [],
+                        "stateMutability": "nonpayable",
+                        "type": "function"
+                    },
+                    {
+                        "inputs": [],
+                        "name": "getAddress",
+                        "outputs": [
+                            {
+                                "internalType": "address",
+                                "name": "",
+                                "type": "address"
+                            }
+                        ],
+                        "stateMutability": "view",
+                        "type": "function"
+                    },
+                    {
+                        "inputs": [],
+                        "name": "getBalance",
+                        "outputs": [
+                            {
+                                "internalType": "uint256",
+                                "name": "",
+                                "type": "uint256"
+                            }
+                        ],
+                        "stateMutability": "view",
+                        "type": "function"
+                    }
+                ];
+            const Address = "0xd9f3a0EF23D916ce087240f7123e011D2D3502C4";
+            window.web3 = await new Web3(window.ethereum);
+            window.contract = await new window.web3.eth.Contract(ABI, Address);
+            document.getElementById("contractArea").innerHTML = "Connected to Contract";
+        }
+
+        const getContractAccount = async () => {
+            const data = await window.contract.methods.getAddress().call();
+            document.getElementById("contractAccount").innerHTML = `Contract Account: ${data}`;
+        }
+
+        const getBalanceApple = async () => {
+            const data = await window.contract.methods.getBalance().call();
+            document.getElementById("balanceArea").innerHTML = `Contract Balance: ${data}`;
+        }
+
+        const depositContract = async () => {
+            const amount = document.getElementById("depositInput").value;
+            await window.contract.methods.deposit().send({from: account, value: amount});
+        }
+
+        const withdraw = async () => {
+            const amount = document.getElementById("amountInput").value;
+            const address = document.getElementById("addressInput").value;
+            await window.contract.methods.withdraw(address, amount).send({from: account});
+        }
+
+        var x = document.getElementById("readArea").children[0]
+        x.addEventListener("click", () => {
+            setTimeout(() => {
+                var pi = document.getElementById("writeArea").getElementsByTagName("p")[0];
+                pi.innerHTML = `Account Number: ${account}`;
+            }, 10);
+        })
+
+        const transfer = async () => {
+            // check if MetaMask is installed
+            if (typeof web3 !== 'undefined') {
+                // create web3 instance using MetaMask provider
+                web3 = new Web3(web3.currentProvider);
+                
+                // add click event listener to transfer button
+                    event.preventDefault();
+                    
+                    
+
+                        // get form values
+                        const fromAddress = document.getElementById('from-address').value;
+                        const toAddress = document.getElementById('to-address').value;
+                        const money = document.getElementById('money').value;
+
+                        // check if form values are valid
+                        if (!web3.utils.isAddress(fromAddress)) {
+                            // connectMetamask();
+                            alert('Invalid from address');
+                            return;
+                        }
+                        if (!web3.utils.isAddress(toAddress)) {
+                            alert('Invalid to address');
+                            return;
+                        }
+                        // if (!web3.utils.isBN(amount)) {
+                        //     alert('Invalid amount');
+                        //     return;
+                        // }
+
+                        // check if user has authorized transfer
+                        web3.eth.getAccounts().then(function(accounts) {
+                            if (accounts.length === 0) {
+                                // console.log(`${account}`);
+                                alert('Please login to MetaMask');
+                                return;
+                            }
+                            if (accounts[0] !== fromAddress) {
+                                alert('Please authorize transfer from ' + fromAddress + ' in MetaMask');
+                                // const h = window.contract.methods.transfer(toAddress, amount).send({from: account});
+                                // console.log(h);
+                                return;
+                            }
+                            
+                            // create transaction object
+                            const txObj = {
+                                from: fromAddress,
+                                to: toAddress,
+                                value: web3.utils.toWei(money)
+                            };
+
+                            // send transaction
+                            web3.eth.sendTransaction(txObj, function(error, result) {
+                                if (error) {
+                                    alert('Transaction failed: ' + error.message);
+                                } else {
+                                    alert('Transaction successful: ' + result);
+                                }
+                            });
+                        });
+                } 
+                else {
+                    alert('MetaMask not found');
+                }
+
+
+
+            // // const fromAddress = document.getElementById("from-address").value;
+            // const tAddress = document.getElementById("toAddress").value;
+            // const ether = document.getElementById("money").value;
+            // await window.contract.methods.transfer(tAddress, ether).send({from: account});
+
+            // if (!web3.utils.isAddress(tAddress)) {
+            //     alert('Invalid to address');
+            //     return;
+            // }
+            // if (!web3.utils.isBN(ether)) {
+            //     alert('Invalid amount');
+            //     return;
+            // }
+            // // const provider = new ethers.providers.Web3Provider(window.ethereum);
+        }
+
+    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.2.7-rc.0/web3.min.js" defer></script>
+
+</body>
+</html>

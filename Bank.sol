@@ -18,9 +18,9 @@ contract Bank {
         return address(this);
     }  
 
-    function transfer(address payable _to, uint _amount) external {
+    function transfer(address payable _to, uint _money) external {
         // require(msg.value > 0, "Value must be greater than 0");
-        _to.transfer(_amount);
+        _to.transfer(_money);
     }
     
 }
